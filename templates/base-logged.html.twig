@@ -1,0 +1,35 @@
+{% extends 'base.html.twig' %}
+{% set currentRoute = app.request.attributes.get('_route') %}
+{% block body %}
+    <nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+        <a class="navbar-brand" href="{{ path('homepage') }}">Fakturáč</a>
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarCollapse">
+            <ul class="navbar-nav mr-auto">
+                <li class="nav-item{% if currentRoute == 'homepage' %} active{% endif %}">
+                    <a class="nav-link" href="{{ path('homepage') }}">Domů{% if currentRoute == 'homepage' %}  <span class="sr-only">(jsi tu)</span>{% endif %}</a>
+                </li>
+                <li class="nav-item{% if currentRoute == 'invoice' %} active{% endif %}">
+                    <a class="nav-link" href="{{ path('invoice') }}">Faktury{% if currentRoute == 'invoice' %}  <span class="sr-only">(jsi tu)</span>{% endif %}</a>
+                </li>
+                <li class="nav-item{% if currentRoute == 'subscriber' %} active{% endif %}">
+                    <a class="nav-link" href="{{ path('subscriber') }}">Odběratelé{% if currentRoute == 'subscriber' %}  <span class="sr-only">(jsi tu)</span>{% endif %}</a>
+                </li>
+                <li class="nav-item{% if currentRoute == 'report' %} active{% endif %}">
+                    <a class="nav-link" href="{{ path('report') }}">Přehledy{% if currentRoute == 'report' %}  <span class="sr-only">(jsi tu)</span>{% endif %}</a>
+                </li>
+                <li class="nav-item{% if currentRoute == 'settings' %} active{% endif %}">
+                    <a class="nav-link" href="{{ path('settings') }}">Nastavení{% if currentRoute == 'settings' %}  <span class="sr-only">(jsi tu)</span>{% endif %}</a>
+                </li>
+            </ul>
+            <ul class="navbar-nav navbar-text">
+                <li class="nav-item">
+                    <a class="nav-link" href="{{ path('app_logout') }}">Odhlásit</a>
+                </li>
+            </ul>
+        </div>
+    </nav>
+    {% block content %}{% endblock %}
+{% endblock %}
