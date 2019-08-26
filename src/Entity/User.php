@@ -33,6 +33,18 @@ class User implements UserInterface
      */
     private $password;
 
+    /**
+     * @var boolean
+     * @ORM/Column(type="boolean")
+     */
+    private $isActive;
+
+    /**
+     * @var string
+     * @ORM/Column(type="string", length=32, nullable=true)
+     */
+    private $activationCode;
+
     public function getId(): ?int
     {
         return $this->id;

@@ -1,0 +1,20 @@
+{% extends 'base-login.html.twig' %}
+
+{% block title %}Registrace{% endblock %}
+
+{% block loginform %}
+    <div class="row login-form d-flex align-items-center">
+        <div class="offset-md-3 offset-lg-4 col-md-6 col-lg-4 text-center">
+            {% if error %}
+                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
+            {% endif %}
+
+            <h1 class="h3 mb-3 text-center font-weight-normal">Fakturáč</h1>
+            <h2 class="h4 mb-3 text-center font-weight-normal">Registrace uživatele</h2>
+
+            {{ form(form) }}
+            <hr>
+            <p>&copy; 2019 Tomáš Škvrna</p>
+        </div>
+    </div>
+{% endblock %}
