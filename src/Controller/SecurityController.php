@@ -10,9 +10,22 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
+use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
 class SecurityController extends AbstractController
 {
+    protected $passwordEncoder;
+
+    /**
+     * SecurityController constructor.
+     * @param UserPasswordEncoderInterface $passwordEncoder
+     *
+     */
+    public function __construct(UserPasswordEncoderInterface $passwordEncoder)
+    {
+        $this->passwordEncoder = $passwordEncoder;
+    }
+
     /**
      * @Route("/prihlaseni", name="app_login")
      * @param AuthenticationUtils $authenticationUtils
@@ -31,14 +44,14 @@ class SecurityController extends AbstractController
         return $this->render('security/login.html.twig',
             [
                 'last_username' => $lastUsername,
-                'error' => $error
+                'error' => $error,
             ]);
     }
 
     /**
      * @Route("/registrace", name="app_register")
      */
-    public function register(UserPasswordEncoderInterface $passwordEncoder, Request $request): Response
+    public function register(Request $request): Response
     {
         $user = new User();
         $error = null;
@@ -50,20 +63,23 @@ class SecurityController extends AbstractController
         if($form->isSubmitted() && $form->isValid()) {
             $em = $this->getDoctrine()->getManager();
             $formData = $form->getData();
+            $activationToken = md5(time());
 
             $user->setEmail($formData['email']);
             $user->setRoles(['ROLE_USER']);
-            $user->setPassword($passwordEncoder->encodePassword(
+            $user->setPassword($this->passwordEncoder->encodePassword(
                 $this->email,
                 $formData['password']
             ));
             $user->setIsActive(0);
-            $user->setActivationCode(md5(time()));
+            $user->setActivationToken($activationToken);
 
             $em->persist($user);
             $em->flush();
 
-            return new RedirectToRoute($this->urlGenerator->generate('app_register_success'));
+            return new RedirectToRoute($this->urlGenerator->generate('app_register_success'), [
+                'activationToken' => $activationToken
+            ]);
         } else {
             return $this->render('security/register.html.twig',
                 [
@@ -75,11 +91,28 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route('uspesna_registrace/{activationCode}', name='app_register_success')
+     * @Route("/uspesna-registrace/{activationToken}", name="app_register_success")
      */
-    public function registerSuccess($activationCode): Response
+    public function registerSuccess(string $activationToken = null): Response
     {
+        $error = false;
+        $success = false;
+        $repository = $this->getDoctrine()->getRepository(User::class);
+        $user = $repository->findBy([
+            'activationToken' => $activationToken,
+        ]);
 
+        if($user) {
+            $success = true;
+        } else {
+            $error = true;
+        }
+
+        return $this->render('security/register_success.html.twig',
+            [
+                'registerSuccess' => $success,
+                'registerError' => $error
+            ]);
     }
 
     /**

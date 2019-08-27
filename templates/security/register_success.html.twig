@@ -1,0 +1,40 @@
+{% extends 'base-login.html.twig' %}
+
+{% if registerSuccess %}
+    {% set pageTitle = "Registrace proběhla úspěšně" %}
+{% elseif registerError %}
+    {% set pageTitle = "Neplatný uživatel" %}
+{% endif %}
+{% block title %}{{ pageTitle }}{% endblock %}
+
+{% block loginform %}
+    <div class="row login-form d-flex align-items-center">
+    <div class="offset-md-3 offset-lg-4 col-md-6 col-lg-4 text-center">
+    {% if registerSuccess %}
+        <div class="bg-success text-white rounded p-3 mb-3">
+            <h1 class="h3 mb-3 text-center font-weight-normal">Bingo!</h1>
+            <p class="font-weight-bold">Právě jste úspěšně dokončil(a) registraci!</p>
+            <hr>
+            <p>Na e-mailovou adresu, kterou jste zadal(a), vám každou chvíli přistane zpráva
+               (pokud už nepřistál) aktivační e-mail.</p>
+        </div>
+    {% endif %}
+    {% if registerError %}
+        <div class="bg-danger text-white rounded p-3 mb-3">
+            <h1 class="h3 mb-3 text-center font-weight-normal">Ajajaj!</h1>
+            <p class="font-weight-bold">Uživatel, kterého se pokoušíš aktivovat, neexistuje.</p>
+            <hr>
+            <p class="text-left">Co za tím může být?</p>
+            <ul class="text-left">
+                <li>Zatím jste se neregistroval(a). <a class="text-light" href="{{ path('app_register') }}">Registrujte se.</a></li>
+                <li>Váš účet je již aktivní.</li>
+                <li>Něco jiného...</li>
+            </ul>
+            <p class="text-left">Vraťte se na <a class="text-light" href="{{ path('app_login') }}">přihlašovací stránku.</a></p>
+        </div>
+    {% endif %}
+    <hr>
+    <p>&copy; 2019 Tomáš Škvrna</p>
+    </div>
+    </div>
+{% endblock %}

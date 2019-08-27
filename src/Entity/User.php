@@ -7,6 +7,7 @@ use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\UserRepository")
+ * @ORM\Table(name="user")
  */
 class User implements UserInterface
 {
@@ -35,15 +36,15 @@ class User implements UserInterface
 
     /**
      * @var boolean
-     * @ORM/Column(type="boolean")
+     * @ORM\Column(name="is_active", type="boolean")
      */
     private $isActive;
 
     /**
      * @var string
-     * @ORM/Column(type="string", length=32, nullable=true)
+     * @ORM\Column(name="activation_token", type="string", length=32, nullable=true)
      */
-    private $activationCode;
+    private $activationToken;
 
     public function getId(): ?int
     {
@@ -119,7 +120,44 @@ class User implements UserInterface
      */
     public function eraseCredentials()
     {
-        // If you store any temporary, sensitive data on the user, clear it here
-        // $this->plainPassword = null;
+        $this->plainPassword = null;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getIsActive(): bool
+    {
+        return $this->isActive;
+    }
+
+    /**
+     * @param bool $isActive
+     */
+    public function setIsActive(bool $isActive)
+    {
+        $this->isActive = $isActive;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getActivationToken(): string
+    {
+        return $this->activationToken;
+    }
+
+    /**
+     * @param string $activationToken
+     */
+    public function setActivationToken(string $activationToken)
+    {
+        $this->activationToken = $activationToken;
+
+        return $this;
     }
 }
