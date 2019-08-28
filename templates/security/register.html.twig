@@ -5,14 +5,28 @@
 {% block loginform %}
     <div class="row login-form d-flex align-items-center">
         <div class="offset-md-3 offset-lg-4 col-md-6 col-lg-4 text-center">
-            {% if error %}
-                <div class="alert alert-danger">{{ error.messageKey|trans(error.messageData, 'security') }}</div>
-            {% endif %}
 
             <h1 class="h3 mb-3 text-center font-weight-normal">Fakturáč</h1>
             <h2 class="h4 mb-3 text-center font-weight-normal">Registrace uživatele</h2>
 
-            {{ form(form) }}
+            {% if registerError is not null %}
+                <div class="alert alert-danger">
+                    {% if registerError == 'user_already_registered' %}
+                        <span class="text-left">E-mail je již registrován.</span>
+                    {% endif %}
+                </div>
+            {% endif %}
+
+            {{ form_start(form) }}
+
+            {{ form_row(form.email) }}
+            {{ form_row(form.password) }}
+            {{ form_row(form.password_retype) }}
+            {{ form_row(form.save) }}
+
+            {{ form_end(form) }}
+
+            <a href="{{ path('app_login') }}" class="btn btn-default bg-light rounded-pill">Přihlásit se</a>
             <hr>
             <p>&copy; 2019 Tomáš Škvrna</p>
         </div>

@@ -4,6 +4,7 @@ namespace App\Controller;
 
 use App\Entity\User;
 use App\Form\UserRegisterFormType;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
@@ -54,40 +55,45 @@ class SecurityController extends AbstractController
     public function register(Request $request): Response
     {
         $user = new User();
-        $error = null;
+        $registerError = null;
         $success = null;
 
         $form = $this->createForm(UserRegisterFormType::class, $user);
 
         $form->handleRequest($request);
         if($form->isSubmitted() && $form->isValid()) {
-            $em = $this->getDoctrine()->getManager();
             $formData = $form->getData();
-            $activationToken = md5(time());
 
-            $user->setEmail($formData['email']);
-            $user->setRoles(['ROLE_USER']);
-            $user->setPassword($this->passwordEncoder->encodePassword(
-                $this->email,
-                $formData['password']
-            ));
-            $user->setIsActive(0);
-            $user->setActivationToken($activationToken);
+            try {
+                $em = $this->getDoctrine()->getManager();
+                $activationToken = md5(time());
 
-            $em->persist($user);
-            $em->flush();
+                $user = $formData;
+                $user->setRoles(['ROLE_USER']);
+                $user->setPassword($this->passwordEncoder->encodePassword(
+                    $formData,
+                    $formData->getPassword()
+                ));
+                $user->setIsActive(0);
+                $user->setActivationToken($activationToken);
 
-            return new RedirectToRoute($this->urlGenerator->generate('app_register_success'), [
-                'activationToken' => $activationToken
-            ]);
-        } else {
-            return $this->render('security/register.html.twig',
-                [
-                    'form' => $form->createView(),
-                    'error' => $error,
-                ]
-            );
+                $em->persist($user);
+                $em->flush();
+
+                return $this->redirectToRoute('app_register_success', [
+                    'activationToken' => $activationToken
+                ]);
+            } catch (UniqueConstraintViolationException $ex) {
+                $registerError = 'user_already_registered';
+            }
         }
+
+        return $this->render('security/register.html.twig',
+            [
+                'form' => $form->createView(),
+                'registerError' => $registerError,
+            ]
+        );
     }
 
     /**
@@ -120,7 +126,7 @@ class SecurityController extends AbstractController
      */
     public function logout()
     {
-        return new RedirectResponse($this->urlGenerator->generate('app_loign'));
+        return $this->redirectToRoute('app_login');
 
         //throw new \Exception('This method can be blank - it will be intercepted by the logout key on your firewall');
     }

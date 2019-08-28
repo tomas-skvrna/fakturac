@@ -3,12 +3,17 @@
 namespace App\Form;
 
 use App\Entity\User;
+use App\Validator\PasswordEquality;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
+use Symfony\Component\Validator\Constraints\Email;
+use Symfony\Component\Validator\Constraints\Expression;
+use Symfony\Component\Validator\Constraints\Length;
+use Symfony\Component\Validator\Constraints\NotBlank;
 
 class UserRegisterFormType extends AbstractType
 {
@@ -28,6 +33,14 @@ class UserRegisterFormType extends AbstractType
                         'placeholder' => 'E-mail',
                         'class' => 'form-control mb-3 rounded-pill',
                     ],
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'Prosím vyplňte e-mailovou adresu.',
+                        ]),
+                        new Email([
+                            'message' => 'Tato e-mailová adresa není platná!'
+                        ]),
+                    ],
                 ]
             )
             ->add(
@@ -43,10 +56,19 @@ class UserRegisterFormType extends AbstractType
                         'placeholder' => 'Heslo',
                         'class' => 'form-control mb-3 rounded-pill',
                     ],
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'Prosím vyplňte heslo'
+                        ]),
+                        new Length([
+                            'min' => 6,
+                            'minMessage' => 'Heslo musí mít alespoň 6 znaků!'
+                        ])
+                    ],
                 ]
             )
             ->add(
-                'password-retype',
+                'password_retype',
                 PasswordType::class,
                 [
                     'label' => 'Heslo znovu',
@@ -58,6 +80,16 @@ class UserRegisterFormType extends AbstractType
                     'attr' => [
                         'placeholder' => 'Heslo znovu',
                         'class' => 'form-control mb-3 rounded-pill',
+                    ],
+                    'constraints' => [
+                        new NotBlank([
+                            'message' => 'Prosím vyplňte znovu heslo'
+                        ]),
+                        new Length([
+                            'min' => 6,
+                            'minMessage' => 'Heslo musí mít alespoň 6 znaků!'
+                        ]),
+                        new PasswordEquality()
                     ],
                 ]
             )
