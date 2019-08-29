@@ -5,10 +5,12 @@ namespace App\Controller;
 use App\Entity\User;
 use App\Form\UserRegisterFormType;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\Security\Http\Authentication\AuthenticationUtils;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
@@ -52,7 +54,9 @@ class SecurityController extends AbstractController
     /**
      * @Route("/registrace", name="app_register")
      */
-    public function register(Request $request): Response
+    public function register(
+        Request $request,
+        MailerInterface $mailer): Response
     {
         $user = new User();
         $registerError = null;
@@ -80,6 +84,18 @@ class SecurityController extends AbstractController
                 $em->persist($user);
                 $em->flush();
 
+                // odeslání e-mailu
+                $email = (new TemplatedEmail())
+                    ->from('info@fakturac.cz')
+                    ->to($user->getEmail())
+                    ->subject('Fakturáč - aktivační kód')
+                    ->htmlTemplate('_email/activate_user.html.twig')
+                    ->context([
+                        'activationToken' => $activationToken
+                    ]);
+
+                $mailer->send($email);
+
                 return $this->redirectToRoute('app_register_success', [
                     'activationToken' => $activationToken
                 ]);
@@ -97,14 +113,16 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/uspesna-registrace/{activationToken}", name="app_register_success")
+     * @Route("/dokonceni-registrace/{activationToken}", name="app_register_success")
      */
-    public function registerSuccess(string $activationToken = null): Response
+    public function registerSuccess(
+        string $activationToken = null,
+        MailerInterface $mailer): Response
     {
         $error = false;
         $success = false;
         $repository = $this->getDoctrine()->getRepository(User::class);
-        $user = $repository->findBy([
+        $user = $repository->findOneBy([
             'activationToken' => $activationToken,
         ]);
 
@@ -114,10 +132,61 @@ class SecurityController extends AbstractController
             $error = true;
         }
 
+        // odeslání e-mailu
+        $email = (new TemplatedEmail())
+            ->from('info@fakturac.cz')
+            ->to($user->getEmail())
+            ->subject('Fakturáč - aktivační kód')
+            ->htmlTemplate('_email/activate_user.html.twig')
+            ->context([
+                'activationToken' => $activationToken
+            ]);
+
+        $mailer->send($email);
+
         return $this->render('security/register_success.html.twig',
             [
                 'registerSuccess' => $success,
                 'registerError' => $error
+            ]);
+    }
+
+    public function activate(
+        string $activationToken = null,
+        MailerInterface $mailer): Response
+    {
+        $error = false;
+        $success = false;
+        $repository = $this->getDoctrine()->getRepository(User::class);
+        $user = $repository->findOneBy([
+            'activationToken' => $activationToken,
+        ]);
+
+        if($user) {
+            $em = $this->getDoctrine()->getManager();
+            $user->setIsActivated(1);
+            $user->setActivationToken(null);
+            $em->persist($user);
+            $em->flush();
+
+            // odeslání e-mailu
+            $email = (new TemplatedEmail())
+                ->from('info@fakturac.cz')
+                ->to($user->getEmail())
+                ->subject('Fakturáč - aktivační kód')
+                ->htmlTemplate('_email/welcome_user.html.twig');
+
+            $mailer->send($email);
+
+            $success = true;
+        } else {
+            $error = true;
+        }
+
+        return $this->render('security/activate.html.twig',
+            [
+                'activateSuccess' => $success,
+                'activateError' => $error
             ]);
     }
 
