@@ -2,7 +2,7 @@
 <h2>Aktivace účtu</h2>
 
 <p>Děkujeme za registraci na Fakturáči. Abyste jej mohl(a) plně využívat, musíte se nejdříve aktivovat.</p>
-<p><a href="{{ absolute_url('app_activate', {'activationToken': activationToken}) }}">Aktivovat</a></p>
+<p><a href="{{ absolute_url(path('app_activate', parameters = {'activationToken': activationToken})) }}">Aktivovat</a></p>
 <p>Pokud nemůžete aktivovat účet kliknutím na odkaz, pak si následující adresu zkopírujte a vložte do adresního řádku prohlížeče:</p>
-<p><a href="{{ absolute_url('app_activate', {'activationToken': activationToken}) }}">{{ absolute_url('app_activate', {'activationToken': activationToken}) }}</a></p>
+<p><a href="{{ absolute_url(path('app_activate', parameters = {'activationToken': activationToken})) }}">{{ path('app_activate', parameters = [{'activationToken': activationToken}], relative = false) }}</a></p>
 <p>Váš Fakturáč</p>

@@ -96,7 +96,7 @@ class SecurityController extends AbstractController
 
                 $mailer->send($email);
 
-                return $this->redirectToRoute('app_register_success', [
+                return $this->redirectToRoute('app_register_finish', [
                     'activationToken' => $activationToken
                 ]);
             } catch (UniqueConstraintViolationException $ex) {
@@ -113,9 +113,9 @@ class SecurityController extends AbstractController
     }
 
     /**
-     * @Route("/dokonceni-registrace/{activationToken}", name="app_register_success")
+     * @Route("/dokonceni-registrace/{activationToken}", name="app_register_finish")
      */
-    public function registerSuccess(
+    public function registerFinish(
         string $activationToken = null,
         MailerInterface $mailer): Response
     {
@@ -128,9 +128,6 @@ class SecurityController extends AbstractController
 
         if($user) {
             $success = true;
-        } else {
-            $error = true;
-        }
 
         // odeslání e-mailu
         $email = (new TemplatedEmail())
@@ -142,15 +139,25 @@ class SecurityController extends AbstractController
                 'activationToken' => $activationToken
             ]);
 
-        $mailer->send($email);
+            $mailer->send($email);
+        } else {
+            $error = true;
+        }
 
-        return $this->render('security/register_success.html.twig',
+        return $this->render('security/register_finish.html.twig',
             [
                 'registerSuccess' => $success,
                 'registerError' => $error
             ]);
     }
 
+    /**
+     * @Route("/aktivace/{activationToken}", name="app_activate")
+     * @param string|null $activationToken
+     * @param MailerInterface $mailer
+     * @return Response
+     * @throws \Symfony\Component\Mailer\Exception\TransportExceptionInterface
+     */
     public function activate(
         string $activationToken = null,
         MailerInterface $mailer): Response
@@ -164,8 +171,8 @@ class SecurityController extends AbstractController
 
         if($user) {
             $em = $this->getDoctrine()->getManager();
-            $user->setIsActivated(1);
-            $user->setActivationToken(null);
+            $user->setIsActive(1);
+            $user->setActivationToken('');
             $em->persist($user);
             $em->flush();
 
@@ -196,7 +203,5 @@ class SecurityController extends AbstractController
     public function logout()
     {
         return $this->redirectToRoute('app_login');
-
-        //throw new \Exception('This method can be blank - it will be intercepted by the logout key on your firewall');
     }
 }
