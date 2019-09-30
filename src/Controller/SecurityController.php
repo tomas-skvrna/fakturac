@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\UserForgottenPasswordFormType;
 use App\Form\UserRegisterFormType;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
@@ -195,6 +196,65 @@ class SecurityController extends AbstractController
                 'activateSuccess' => $success,
                 'activateError' => $error
             ]);
+    }
+
+    /**
+     * @Route("/zapomenute-heslo", name="app_forgotten_password")
+     */
+    public function forgottenPassword(
+        Request $request,
+        MailerInterface $mailer): Response
+    {
+        $user = new User();
+        $success = false;
+        $error = false;
+
+        $form = $this->createForm(UserForgottenPasswordFormType::class, $user);
+
+        $form->handleRequest($request);
+        if($form->isSubmitted() && $form->isValid()) {
+            $formData = $form->getData();
+
+            $repository = $this->getDoctrine()->getRepository(User::class);
+            $user = $repository->findOneBy([
+                'email' => $formData->getEmail(),
+            ]);
+
+            if($user) {
+                $password = substr(md5(microtime()),0,8);
+                $em = $this->getDoctrine()->getManager();
+                $user->setPassword($this->passwordEncoder->encodePassword(
+                    $formData,
+                    $password
+                ));
+                $em->persist($user);
+                $em->flush();
+
+                // odeslání e-mailu
+                $email = (new TemplatedEmail())
+                    ->from('info@fakturac.cz')
+                    ->to($user->getEmail())
+                    ->subject('Fakturáč - nové heslo')
+                    ->htmlTemplate('_email/forgotten_password.html.twig')
+                    ->context([
+                        'password' => $password
+                    ]);
+
+                $mailer->send($email);
+
+                $success = true;
+            } else {
+                $error = true;
+            }
+        }
+
+        return $this->render('security/forgotten_password.html.twig',
+            [
+                'form' => $form->createView(),
+                'passwordSendSuccess' => $success,
+                'passwordSendError' => $error
+            ]
+        );
     }
 
     /**

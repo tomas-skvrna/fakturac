@@ -17,6 +17,11 @@
                 <li class="nav-item{% if currentRoute == 'subscriber' %} active{% endif %}">
                     <a class="nav-link" href="{{ path('subscriber') }}">Odběratelé{% if currentRoute == 'subscriber' %}  <span class="sr-only">(jsi tu)</span>{% endif %}</a>
                 </li>
+                {% if is_granted('ROLE_ADMIN') %}
+                    <li class="nav-item{% if currentRoute == 'user' %} active{% endif %}">
+                        <a class="nav-link" href="{{ path('user') }}">Uživatelé{% if currentRoute == 'user' %}  <span class="sr-only">(jsi tu)</span>{% endif %}</a>
+                    </li>
+                {% endif %}
                 <li class="nav-item{% if currentRoute == 'report' %} active{% endif %}">
                     <a class="nav-link" href="{{ path('report') }}">Přehledy{% if currentRoute == 'report' %}  <span class="sr-only">(jsi tu)</span>{% endif %}</a>
                 </li>
