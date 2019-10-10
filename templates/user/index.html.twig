@@ -10,8 +10,8 @@
     <table class="table table-hover">
         <thead>
             <tr>
-                <th>ID</th>
-                <th>Email</th>
+                <th>#</th>
+                <th>Jméno / Email</th>
                 <th>Aktivní?</th>
                 <th>Akce</th>
             </tr>
@@ -20,7 +20,12 @@
         {% for user in users %}
             <tr>
                 <td>{{ user.id }}</td>
-                <td>{{ user.email }}</td>
+                <td>
+                    {% if user.profiles.count() > 0 %}
+                        {{ user.profiles|first.firstName }} {{ user.profiles|first.lastName }} /
+                    {% endif %}
+                    {{ user.email }}
+                </td>
                 <td>
                     {% if user.isActive %}
                         <div class="btn btn-sm btn-success rounded-pill"><i class="fas fa-check"></i></div>

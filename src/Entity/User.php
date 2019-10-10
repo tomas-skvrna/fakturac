@@ -3,6 +3,8 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use App\Entity\UserProfile;
+use Doctrine\ORM\Mapping\OneToMany;
 use Symfony\Component\Security\Core\User\UserInterface;
 
 /**
@@ -17,6 +19,11 @@ class User implements UserInterface
      * @ORM\Column(type="integer")
      */
     private $id;
+
+    /**
+     * @OneToMany(targetEntity="UserProfile", mappedBy="user")
+     */
+    private $profiles;
 
     /**
      * @ORM\Column(type="string", length=180, unique=true)
@@ -49,6 +56,21 @@ class User implements UserInterface
     public function getId(): ?int
     {
         return $this->id;
+    }
+
+    public function getProfiles()
+    {
+        return $this->profiles;
+    }
+
+    public function setProfiles($profiles): void
+    {
+        $this->profiles = $profiles;
+    }
+
+    public function addProfile(UserProfile $profile): void
+    {
+        $this->profiles[] = $profile;
     }
 
     public function getEmail(): ?string
