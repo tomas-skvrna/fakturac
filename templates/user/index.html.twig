@@ -1,20 +1,19 @@
-{% extends 'base.html.twig' %}
+{% extends 'base-logged.html.twig' %}
 
-{% block title %}User index{% endblock %}
+{% block title %}Uživatelé{% endblock %}
 
-{% block body %}
-    <h1>User index</h1>
+{% block content %}
+    <h1>Uživatelé</h1>
 
-    <table class="table">
+    <a class="btn btn-light btn-lg rounded-pill mb-3" href="{{ path('user_new') }}"><i class="fas fa-plus"></i> Vytvořit nového uživatele</a>
+
+    <table class="table table-hover">
         <thead>
             <tr>
-                <th>Id</th>
+                <th>ID</th>
                 <th>Email</th>
-                <th>Roles</th>
-                <th>Password</th>
-                <th>IsActive</th>
-                <th>ActivationToken</th>
-                <th>actions</th>
+                <th>Aktivní?</th>
+                <th>Akce</th>
             </tr>
         </thead>
         <tbody>
@@ -22,13 +21,16 @@
             <tr>
                 <td>{{ user.id }}</td>
                 <td>{{ user.email }}</td>
-                <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
-                <td>{{ user.password }}</td>
-                <td>{{ user.isActive ? 'Yes' : 'No' }}</td>
-                <td>{{ user.activationToken }}</td>
                 <td>
-                    <a href="{{ path('user_show', {'id': user.id}) }}">show</a>
-                    <a href="{{ path('user_edit', {'id': user.id}) }}">edit</a>
+                    {% if user.isActive %}
+                        <div class="btn btn-sm btn-success rounded-pill"><i class="fas fa-check"></i></div>
+                    {% else %}
+                        <div class="btn btn-sm btn-danger rounded-pill"><i class="fas fa-cross"></i></div>
+                    {% endif %}
+                </td>
+                <td>
+                    <a title="zobrazit" class="btn btn-sm btn-light rounded-pill" href="{{ path('user_show', {'id': user.id}) }}"><i class="fas fa-file"></i></a>
+                    <a title="upravit" class="btn btn-sm btn-primary rounded-pill" href="{{ path('user_edit', {'id': user.id}) }}"><i class="fas fa-pencil-alt"></i></a>
                 </td>
             </tr>
         {% else %}
@@ -38,6 +40,4 @@
         {% endfor %}
         </tbody>
     </table>
-
-    <a href="{{ path('user_new') }}">Create new</a>
 {% endblock %}

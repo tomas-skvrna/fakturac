@@ -26,6 +26,7 @@ Encore
     .enableSassLoader()
     .autoProvidejQuery()
     .addStyleEntry('bootstrap-css', './public/libraries/bootstrap/css/bootstrap.min.css')
+    .addStyleEntry('font-awesome-css', './public/libraries/font-awesome/fontawesome-free-5.10.1-web/css/all.css')
     .addStyleEntry('app-css', './public/assets/scss/app.scss')
     .addEntry('bootstrap-js', './public/libraries/bootstrap/js/bootstrap.bundle.min.js')
     .addEntry('app-js', './public/assets/js/app.js')
@@ -50,10 +51,10 @@ Encore
     // enables hashed filenames (e.g. app.abc123.css)
     .enableVersioning(Encore.isProduction())
     // enables @babel/preset-env polyfills
-    .configureBabel(() => {}, {
-        useBuiltIns: 'usage',
-        corejs: 3
-    })
+    //.configureBabel(() => {}, {
+    //    useBuiltIns: 'usage',
+    //    corejs: 3
+    //})
 
     // uncomment to get integrity="..." attributes on your script & link tags
     // requires WebpackEncoreBundle 1.4 or higher
