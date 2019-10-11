@@ -1,42 +1,90 @@
-{% extends 'base.html.twig' %}
+{% extends 'base-logged.html.twig' %}
 
-{% block title %}User{% endblock %}
+{% block title %}Detail uživatele{% endblock %}
 
-{% block body %}
-    <h1>User</h1>
+{% block content %}
+    <h1>Detail uživatele</h1>
 
     <table class="table">
         <tbody>
             <tr>
-                <th>Id</th>
+                <th>#</th>
                 <td>{{ user.id }}</td>
             </tr>
             <tr>
-                <th>Email</th>
+                <th>Jméno a příjmení</th>
+                <td>
+                    {% if user.profiles.count() > 0 %}
+                        {{ user.profiles|first.firstName }} {{ user.profiles|first.lastName }}
+                    {% else %}
+                        (neuvedeno)
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Firma</th>
+                <td>
+                    {% if user.profiles.count() > 0 %}
+                        {{ user.profiles|first.companyName }}
+                    {% else %}
+                        (neuvedeno)
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>Adresa</th>
+                <td>
+                    {% if user.profiles.count() > 0 %}
+                        {{ user.profiles|first.address|nl2br }}
+                    {% else %}
+                        (neuvedeno)
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>IČ</th>
+                <td>
+                    {% if user.profiles.count() > 0 %}
+                        {{ user.profiles|first.businessId }}
+                    {% else %}
+                        (neuvedeno)
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>DIČ</th>
+                <td>
+                    {% if user.profiles.count() > 0 %}
+                        {{ user.profiles|first.taxId }}
+                    {% else %}
+                        (neuvedeno)
+                    {% endif %}
+                </td>
+            </tr>
+            <tr>
+                <th>E-mail</th>
                 <td>{{ user.email }}</td>
             </tr>
             <tr>
-                <th>Roles</th>
+                <th>Role</th>
                 <td>{{ user.roles ? user.roles|json_encode : '' }}</td>
             </tr>
             <tr>
-                <th>Password</th>
-                <td>{{ user.password }}</td>
-            </tr>
-            <tr>
-                <th>IsActive</th>
-                <td>{{ user.isActive ? 'Yes' : 'No' }}</td>
-            </tr>
-            <tr>
-                <th>ActivationToken</th>
-                <td>{{ user.activationToken }}</td>
+                <th>Aktivní?</th>
+                <td>
+                    {% if user.isActive %}
+                        <div class="btn btn-sm btn-success rounded-pill"><i class="fas fa-check"></i></div>
+                    {% else %}
+                        <div class="btn btn-sm btn-danger rounded-pill"><i class="fas fa-cross"></i></div>
+                    {% endif %}
+                </td>
             </tr>
         </tbody>
     </table>
 
-    <a href="{{ path('user_index') }}">back to list</a>
+    <a title="zpět na seznam uživatelů" href="{{ path('user_index') }}" class="btn btn-light rounded-pill"><i class="fas fa-list"></i></a>
 
-    <a href="{{ path('user_edit', {'id': user.id}) }}">edit</a>
+    <a title="upravit" href="{{ path('user_edit', {'id': user.id}) }}" class="btn btn-primary rounded-pill"><i class="fas fa-pencil-alt"></i></a>
 
-    {{ include('user/_delete_form.html.twig') }}
+    <a title="smazat" class="btn btn-danger rounded-pill" href="{{ path('user_delete', {'id': user.id}) }}" onclick="return confirm('Opravdu chcete smazat tohoto uživatele?');"><i class="fas fa-trash"></i></a>
 {% endblock %}
